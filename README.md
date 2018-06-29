@@ -10,12 +10,14 @@
           str1=str1+"0";
         }
         str1=str1+number;
-    str+="<img src='./images/"+str1+"'/>;
+    str+="<img src='./images/"+str1+".jpg'/>;
   }
   document.getElementById("re").innerHTML = str;
 </script>
 <div id='re'></div>
 <pre>
+
+
 
 site<-"https://www.glowpick.com/brand/ranking?id=34&main_category_id=1&sub_category_id=4"
 text<-read_html(site,encoding="UTF-8")
