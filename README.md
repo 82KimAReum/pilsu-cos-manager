@@ -1,1 +1,0 @@
-# pilsu-cos-manager
