@@ -16,7 +16,7 @@
 </script>
 <div id='re'></div>
 <pre>
-
+<img src='./images/0001.jpg'/>
 
 
 site<-"https://www.glowpick.com/brand/ranking?id=34&main_category_id=1&sub_category_id=4"
