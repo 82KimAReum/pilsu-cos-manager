@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+		
+<mapper namespace="Sales">
+	<!-- email, name, age, gender, skintype, phone, zipcode, address1, address2, regstat -->
+	
+	<resultMap type="salesVO" id="salesMap">
+		<result property="productcode" column="productcode" javaType="String" jdbcType="VARCHAR"/>
+		<result property="amount" column="amount" javaType="int" jdbcType="INTEGER"/>
+		<result property="profit"  column="profit" javaType="int" jdbcType="INTEGER"/>
+		<result property="productname" column="productname" javaType="String" jdbcType="VARCHAR"/>
+		<result property="orderno" column="orderno" javaType="String" jdbcType="VARCHAR"/>
+		<result property="price" column="price" javaType="int" jdbcType="INTEGER"/>
+		<result property="orderdate" column="orderdate" javaType="String" jdbcType="DATE"/>
+	</resultMap>
+	
+	<!-- select p.productcode,p.productname,sum(amount)as amount,sum(o.price)as profit ,,group by p.productcode, p.productname-->
+	
+	<select id="selectAll" resultMap="salesMap" parameterType="hashMap">
+		<![CDATA[
+				
+		select * 
+		from (
+		    select A.*, rownum as rnum 
+		    from(   
+		          
+		          select p.productcode,p.productname, r.orderno, o.amount,o.price*o.amount as profit,p.price,r.orderdate
+		          from orderdetail o, product p, p_order r
+		          where p.productcode=o.productcode 
+		                and r.orderno=o.orderno 
+		  ]]>              
+		                <if test="searchData != null">
+						   <![CDATA[ AND p.productcode = #{searchData}]]>
+						</if>
+						<if test="startDate != null and endDate != null">
+						   <![CDATA[ and to_char(orderdate, 'yyyy/mm/dd') >= #{startDate} and to_char(orderdate, 'yyyy/mm/dd')<= #{endDate}]]>
+						</if>
+		<![CDATA[			
+		          
+		          order by r.orderno desc
+		        )A
+		    )
+		where rnum >=#{rowStart} and rnum <=#{rowEnd}
+		 
+		]]>
+	</select> 
+	
+	<resultMap type="productVO" id="code">
+		<result property="productcode" column="productcode" javaType="String" jdbcType="VARCHAR"  />
+		<result property="productname" column="productname" javaType="String" jdbcType="VARCHAR"/>
+	</resultMap>
+	<select id="selectcode" resultMap="code">
+		select productcode, productname
+		from product
+	</select> 
+	
+	
+	<select id="selectCount" resultType="hashMap" parameterType="hashMap">
+		select sum(profit),sum(amount),count(*)
+	    from(
+	              select p.productcode,p.productname, r.orderno, o.amount,o.price*o.amount as profit ,p.price,r.orderdate
+			          from orderdetail o, product p, p_order r
+			          where p.productcode=o.productcode 
+			                and r.orderno=o.orderno 
+			               	<if test="searchData != null">
+						   		<![CDATA[ AND p.productcode = #{searchData}]]>
+							</if>
+						<if test="startDate != null and endDate != null">
+							   <![CDATA[ and to_char(orderdate, 'yyyy/mm/dd') >= #{startDate} and to_char(orderdate, 'yyyy/mm/dd')<= #{endDate}]]>
+							</if>
+			          --group by p.productcode, p.productname
+			          order by p.productcode
+	        )
+	</select>
+	
+	
+</mapper>

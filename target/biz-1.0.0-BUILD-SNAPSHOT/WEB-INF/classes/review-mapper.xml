@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+		
+<mapper namespace="Review">
+	<!-- email, name, age, gender, skintype, phone, zipcode, address1, address2, regstat -->
+	
+	<resultMap type="reviewVO" id="selectMap">
+		<result property="gradeno" column="gradeno" javaType="String" jdbcType="VARCHAR" />
+		<result property="comments" column="comments" javaType="String" jdbcType="VARCHAR" />
+		<result property="grade" column="grade" javaType="double" jdbcType="VARCHAR" />
+		<result property="regdate" column="regdate" javaType="String" jdbcType="DATE" />
+		<result property="email" column="email" javaType="String" jdbcType="VARCHAR" />
+		<result property="productcode" column="productcode" javaType="String" jdbcType="VARCHAR" />
+		<result property="name" column="name" javaType="String" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	
+	
+	<!-- 
+	<insert id="faqInsert" parameterType="faqVO" >
+		<selectKey keyProperty="faqno" resultType="int" order="BEFORE">
+		    select seq_faqNo.nextval FROM DUAL
+		</selectKey>
+		insert into FAQ(faqno,title,contents)
+		values(#{faqno},#{title},#{contents})
+	</insert> -->
+	
+	
+	
+	<select id="selectAll" resultMap="selectMap" parameterType="hashMap">
+		<![CDATA[
+  select * 
+		from (
+		    select A.*, rownum as rnum 
+		    from(  
+              select*
+              from(
+                    select gradeno,comments,grade,regdate,g.email as email,g.productcode as productcode,productname,name
+                    from member m, grade g,product p
+                    where p.productcode=g.productcode and m.email=g.email
+              )
+              where productcode like concat('%',concat(#{searchData},'%')) or 
+                  productname like concat('%',concat(#{searchData},'%')) or
+                  name like concat('%',concat(#{searchData},'%')) or
+                  email like concat('%',concat(#{searchData},'%'))
+              order by regdate desc 
+      
+         )A
+    )
+where rnum >=#{rowStart} and rnum <=#{rowEnd}
+		]]>
+	</select>
+	
+	<select id="selectEmail" resultMap="selectMap" parameterType="hashMap">
+		<![CDATA[
+  select * 
+		from (
+		    select A.*, rownum as rnum 
+		    from(  
+              select*
+              from(
+                    select gradeno,comments,grade,regdate,g.email as email,g.productcode as productcode,productname,name
+                    from member m, grade g,product p
+                    where p.productcode=g.productcode and m.email=g.email
+              )
+              where email =#{searchData}
+              order by regdate desc 
+      
+         )A
+    )
+where rnum >=#{rowStart} and rnum <=#{rowEnd}
+		]]>
+	</select>
+	
+	
+	<select id="selectOne" parameterType="String" resultType="reviewVO">
+		select gradeno,comments,grade,regdate,g.email as email,g.productcode as productcode,productname,name
+		from member m, grade g,product p
+		where p.productcode=g.productcode and m.email=g.email
+		    and g.gradeno=#{gradeno}
+  
+	</select>
+	
+	
+	
+	<select id="selectCount" resultType="int" parameterType="hashMap">
+        select count(*)
+		from(  
+              select*
+              from(
+                    select gradeno,comments,grade,regdate,g.email as email,g.productcode as productcode,productname,name
+                    from member m, grade g,product p
+                    where p.productcode=g.productcode and m.email=g.email
+              )
+              where productcode like concat('%',concat(#{searchData},'%')) or 
+                  productname like concat('%',concat(#{searchData},'%')) or
+                  name like concat('%',concat(#{searchData},'%')) or
+                  email like concat('%',concat(#{searchData},'%')) 
+      
+         )
+	</select>
+	
+	<select id="selectCountEmail" resultType="int" parameterType="hashMap">
+        select count(*)
+		from(  
+              select*
+              from(
+                    select gradeno,comments,grade,regdate,g.email as email,g.productcode as productcode,productname,name
+                    from member m, grade g,product p
+                    where p.productcode=g.productcode and m.email=g.email
+              )
+              where 
+                  email =#{searchData}
+      
+         )
+	</select>
+	
+	<delete id="delete" parameterType="String">
+		delete from grade
+	  	where gradeno=#{gradeno}
+	</delete>
+	
+</mapper>
