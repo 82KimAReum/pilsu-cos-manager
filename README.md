@@ -1,3 +1,20 @@
+<script type="text/javascript">
+  var str="";
+  for(var i=1; i<=68; i++){
+        var number = i;
+        var length = 5;
+
+        number=number+"";
+        var str1=""
+        for(var j=0;j<length-number.length;j++){
+          str1=str1+"0";
+        }
+        str1=str1+number;
+    str+="<img src='./images/"+str1+"'/>;
+  }
+  document.getElementById("re").innerHTML = str;
+</script>
+<div id='re'></div>
 <pre>
 
 site<-"https://www.glowpick.com/brand/ranking?id=34&main_category_id=1&sub_category_id=4"
@@ -20,7 +37,7 @@ for(i in 1:25){
   dsc<-html_text(dsc)
   dsc<-gsub("\r\n","",dsc)
   dsc<-gsub("\n","",dsc)
-  dsc<-gsub("¢â","",dsc)
+  dsc<-gsub("Â¢Ã¢","",dsc)
   img<-html_nodes(url,".pdt-img img")
   img<-html_attr(img,"src")
   myinfo<-cbind(name,info)
