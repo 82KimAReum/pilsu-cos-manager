@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+		
+<mapper namespace="Qna">
+	<!-- email, name, age, gender, skintype, phone, zipcode, address1, address2, regstat -->
+	
+	<resultMap type="qnaVO" id="selectMap">
+		<result property="qnaNo" column="qnaNo" javaType="String" jdbcType="CHAR"/>
+		<result property="title" column="title" javaType="String" jdbcType="VARCHAR"/>
+		<result property="contents" column="contents" javaType="String" jdbcType="VARCHAR"/>
+		<result property="reContents" column="reContents" javaType="String" jdbcType="VARCHAR"/>
+		<result property="regDate" column="regDate" javaType="String" jdbcType="DATE"/>
+		<result property="replStat" column="replStat" javaType="String" jdbcType="CHAR"/>
+		<result property="email" column="email" javaType="String" jdbcType="VARCHAR"/>
+	</resultMap>
+	
+	
+	
+	<parameterMap type="hashMap" id="selectRow">
+		<parameter property="searchData" javaType="String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="rowStart" javaType="int" jdbcType="INTEGER" mode="IN"/>
+		<parameter property="rowEnd" javaType="int" jdbcType="INTEGER" mode="IN"/>
+	</parameterMap>
+	<select id="qnaSelectAll" resultMap="selectMap" parameterMap="selectRow">
+		<![CDATA[
+		select * 
+		from (
+		    select A.*, rownum as rnum 
+		    from (
+		        select * 
+		        from qna    
+		        where email like concat('%',concat(#{searchData},'%'))
+		        order by replstat asc, regdate desc
+		        ) A
+		    )
+		where rnum >=#{rowStart} and rnum <=#{rowEnd} 
+		]]>
+	</select>
+	<select id="selectEmail" resultMap="selectMap" parameterMap="selectRow">
+		<![CDATA[
+		select * 
+		from (
+		    select A.*, rownum as rnum 
+		    from (
+		        select * 
+		        from qna    
+		        where email =#{searchData}
+		        order by replstat asc, regdate desc
+		        ) A
+		    )
+		where rnum >=#{rowStart} and rnum <=#{rowEnd} 
+		]]>
+	</select>
+	
+	<select id="qnaSelectOne" parameterType="String" resultType="qnaVO">
+		select * from QNA
+		where qnaNo = #{qnaNo}
+	</select>
+	
+	
+	
+	<select id="qnaSelectCount" resultType="int" parameterType="String">
+        select count(*) 
+        from QNA    
+        where email like concat('%',concat(#{email},'%'))
+	</select>
+	<select id="selectCountEmail" resultType="int" parameterType="String">
+        select count(*) 
+        from QNA    
+        where email =#{email}
+	</select>
+	
+	
+	<update id="qnaUpdate" parameterType="qnaVO">
+		update QNA 
+		set reContents= #{reContents}, replstat='Y'
+		where qnaNo=#{qnaNo}
+	</update>
+	
+	<delete id="qnaDelete" parameterType="String">
+		delete from QNA
+		where qnaNo=#{qnaNo}
+	</delete>
+	
+</mapper>

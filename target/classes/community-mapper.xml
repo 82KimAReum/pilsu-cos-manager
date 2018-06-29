@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+		
+<mapper namespace="Community">
+	<!-- //boardno,title,contents,regdate,readcount,likecount,dislikecount,b.email as email,name -->
+	
+	<resultMap type="communityVO" id="salesMap">
+		<result property="boardno" column="boardno" javaType="String" jdbcType="VARCHAR"/>
+		<result property="title" column="title" javaType="String" jdbcType="VARCHAR"/>
+		<result property="contents" column="contents" javaType="String" jdbcType="VARCHAR"/>
+		<result property="regdate" column="regdate" javaType="String" jdbcType="DATE"/>
+		<result property="readcount" column="readcount" javaType="int" jdbcType="INTEGER"/>
+		<result property="likecount" column="likecount" javaType="int" jdbcType="INTEGER"/>
+		<result property="dislikecount" column="dislikecount" javaType="int" jdbcType="INTEGER"/>
+		<result property="email" column="email" javaType="String" jdbcType="VARCHAR"/>
+		<result property="name" column="name" javaType="String" jdbcType="VARCHAR"/>
+	</resultMap>
+	
+	<!-- select p.productcode,p.productname,sum(amount)as amount,sum(o.price)as profit ,,group by p.productcode, p.productname-->
+	
+	<select id="selectAll" resultMap="salesMap" parameterType="hashMap">
+		<![CDATA[
+				
+		select * 
+		from (
+		    select A.*, rownum as rnum 
+		    from(   
+            select boardno,title,contents,regdate,readcount,likecount,dislikecount,b.email as email,name
+            from board b, member m
+            where b.email=m.email
+		        )A
+        where email like concat('%',concat(#{searchData},'%'))
+        	or name like concat('%',concat(#{searchData},'%'))
+            or title like concat('%',concat(#{searchData},'%'))
+            or boardno like concat('%',concat(#{searchData},'%'))
+            order by regdate desc
+		    )
+		where rnum >=#{rowStart} and rnum <=#{rowEnd}
+		 
+		]]>
+	</select> 
+	<select id="selectEmail" resultMap="salesMap" parameterType="hashMap">
+		<![CDATA[
+				
+		select * 
+		from (
+		    select A.*, rownum as rnum 
+		    from(   
+            select boardno,title,contents,regdate,readcount,likecount,dislikecount,b.email as email,name
+            from board b, member m
+            where b.email=m.email
+		        )A
+        where email =#{searchData}
+        order by regdate desc
+		    )
+		where rnum >=#{rowStart} and rnum <=#{rowEnd}
+		 
+		]]>
+	</select> 
+	
+	
+	<select id="selectCount" resultType="int" parameterType="String">
+		 select count(*)
+		    from(   
+            select boardno,title,contents,regdate,readcount,likecount,dislikecount,b.email as email,name
+            from board b, member m
+            where b.email=m.email
+		        )A
+        where email like concat('%',concat(#{searchData},'%'))
+        	or name like concat('%',concat(#{searchData},'%'))
+          	or title like concat('%',concat(#{searchData},'%'))
+            or boardno like concat('%',concat(#{searchData},'%'))
+	</select>
+	<select id="selectCountEmail" resultType="int" parameterType="String">
+		 select count(*)
+		    from(   
+            select boardno,title,contents,regdate,readcount,likecount,dislikecount,b.email as email,name
+            from board b, member m
+            where b.email=m.email
+		        )A
+        where email= #{email}
+         
+	</select>
+	
+	<select id="selectOne" parameterType="String" resultType="communityVO">
+	 select boardno,title,contents,regdate,readcount,likecount,dislikecount,b.email as email,name
+    from board b, member m
+    where b.email=m.email
+    and boardno =#{boardno}
+	</select>
+	
+	<delete id="delete" parameterType="String">
+	delete from board
+    where boardno =#{boardno}
+	</delete>
+</mapper>

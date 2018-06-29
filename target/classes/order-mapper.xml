@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+		
+<mapper namespace="Order">
+	<!-- email, name, age, gender, skintype, phone, zipcode, address1, address2, regstat -->
+	
+	<resultMap type="orderVO" id="orderMap">
+		<result property="productcode" column="productcode" javaType="String" jdbcType="VARCHAR"/>
+		<result property="orderno" column="orderno" javaType="String" jdbcType="VARCHAR"/>
+		<result property="amount" column="amount" javaType="int" jdbcType="INTEGER"/>
+		<result property="price"  column="price" javaType="int" jdbcType="INTEGER"/>
+		<result property="productname" column="productname" javaType="String" jdbcType="VARCHAR"/>
+		<result property="productprice" column="productprice" javaType="int" jdbcType="INTEGER"/>
+		<result property="image" column="image" javaType="String" jdbcType="VARCHAR"/>
+	</resultMap>
+	<resultMap type="p_orderVO" id="p_orderMap">
+	<result property="orderno" column="orderno" javaType="String" jdbcType="CHAR"/>
+		<result property="orderno" column="orderno" javaType="String" jdbcType="VARCHAR"/>
+		<result property="name" column="name" javaType="String" jdbcType="VARCHAR"/>
+		<result property="zipcode" column="zipcode" javaType="String" jdbcType="VARCHAR"/>
+		<result property="address1" column="address1" javaType="String" jdbcType="VARCHAR"/>
+		<result property="address2" column="address2" javaType="String" jdbcType="VARCHAR"/>
+		<result property="phone" column="phone" javaType="String" jdbcType="VARCHAR"/>
+		<result property="payment" column="payment" javaType="String" jdbcType="CHAR"/>
+		<result property="comments" column="comments" javaType="String" jdbcType="VARCHAR"/>
+		<result property="orderdate" column="orderdate" javaType="String" jdbcType="DATE"/>
+		<result property="orderstat" column="orderstat" javaType="String" jdbcType="CHAR"/>
+		<result property="email" column="email" javaType="String" jdbcType="VARCHAR"/>
+		
+	</resultMap>
+	
+	
+	 
+	<parameterMap type="hashMap" id="selectRow">
+		<parameter property="searchData" javaType="String" jdbcType="VARCHAR" mode="IN"/>
+		<parameter property="rowStart" javaType="int" jdbcType="INTEGER" mode="IN"/>
+		<parameter property="rowEnd" javaType="int" jdbcType="INTEGER" mode="IN"/>
+	</parameterMap>
+	<select id="selectAll" resultMap="p_orderMap" parameterMap="selectRow">
+		<![CDATA[
+		select * 
+		from (
+		    select A.*, rownum as rnum 
+		    from (
+		        select * 
+		        from p_order    
+		        where email like concat('%',concat(#{searchData},'%')) 
+		        or orderno like concat('%',concat(#{searchData},'%')) 
+		        or name like concat('%',concat(#{searchData},'%'))
+		        order by orderstat asc,orderdate desc
+		        )A
+		    )
+		where rnum >=#{rowStart} and rnum <=#{rowEnd} 
+		]]>
+	</select> 
+	<select id="selectOne" resultMap="p_orderMap" parameterMap="selectRow">
+		<![CDATA[
+		select * 
+		from (
+		    select A.*, rownum as rnum 
+		    from (
+		        select * 
+		        from p_order    
+		        where email =#{searchData}
+		        order by orderstat asc,orderdate desc
+		        )A
+		    )
+		where rnum >=#{rowStart} and rnum <=#{rowEnd} 
+		]]>
+	</select> 
+	
+	
+	<select id="selectProduct" parameterType="String" resultMap="orderMap">
+		select p.productcode,o.orderno,amount,o.price,productname,p.price as productprice,image
+		from orderdetail o ,product p
+		where o.orderno=#{orderno} and p.productcode=o.productcode 
+	</select>
+	<select id="selectOrderno" parameterType="String" resultType="p_orderVO">
+		select orderno,name,zipcode,address1,address2,phone,payment,comments,orderdate,orderstat,email
+		from  p_order 
+		where orderno=#{orderno} 
+	</select>
+	
+	
+	
+	<select id="selectCount" resultType="int" parameterType="String">
+        select count(*) 
+        from p_order    
+       	where email like concat('%',concat(#{email},'%')) or orderno like concat('%',concat(#{email},'%')) or name like concat('%',concat(#{searchData},'%'))
+	</select>
+	<!-- selectOneCount -->
+	<select id="selectOneCount" resultType="int" parameterType="String">
+        select count(*) 
+        from p_order    
+       	where email=#{email}
+	</select>
+	
+	<update id="update" parameterType="String">
+		update p_order 
+		set orderstat='Y'
+		where orderno=#{orderno}
+	</update>
+	
+</mapper>
